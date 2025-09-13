@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const CollegeERPAdmin = () => {
+const AdminLanding = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentView, setCurrentView] = useState('dashboard');
   const [adminData, setAdminData] = useState({
@@ -647,4 +647,4 @@ const CollegeERPAdmin = () => {
   );
 };
 
-export default CollegeERPAdmin;
+export default AdminLanding;

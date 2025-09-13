@@ -1,30 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const CollegeERPSystem = () => {
-  const [darkMode, setDarkMode] = useState(false);
   const [stats, setStats] = useState({
     totalStudents: 1247,
     feeCollectionRate: 89,
     hostelOccupancy: 342,
     newAdmissions: 156
   });
-
-  // Initialize theme
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      setDarkMode(true);
-    }
-  }, []);
-
-  // Toggle theme
-  const toggleTheme = () => {
-    const newTheme = !darkMode;
-    setDarkMode(newTheme);
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-  };
 
   // Simulate real-time stats updates
   useEffect(() => {
@@ -126,7 +108,7 @@ const CollegeERPSystem = () => {
   ];
 
   return (
-    <div className={darkMode ? 'dark' : ''}>
+    <div>
       <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-700 dark:from-gray-900 dark:to-gray-800">
         
         {/* Header */}
@@ -145,16 +127,8 @@ const CollegeERPSystem = () => {
                 </div>
               </div>
 
-              {/* User Info & Theme Toggle */}
+              {/* User Info*/}
               <div className="flex items-center space-x-4">
-                <button
-                  onClick={toggleTheme}
-                  className="w-11 h-11 rounded-full bg-gray-100 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-500 hover:text-white transition-all duration-300 flex items-center justify-center text-lg hover:scale-110 hover:rotate-12 shadow-lg"
-                  title="Toggle dark mode"
-                  aria-label="Toggle dark mode"
-                >
-                  {darkMode ? '☀️' : '🌙'}
-                </button>
                 <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center font-semibold text-gray-700 dark:text-gray-300">
                   AD
                 </div>

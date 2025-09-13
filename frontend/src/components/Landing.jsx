@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-const CollegeERPPublicLanding = () => {
-  const [darkMode, setDarkMode] = useState(false);
+const Landing = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login'); // 'login', 'register', 'otp'
   const [formData, setFormData] = useState({
@@ -20,11 +19,6 @@ const CollegeERPPublicLanding = () => {
     newAdmissions: 156
   });
 
-  // Initialize theme
-  useEffect(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setDarkMode(prefersDark);
-  }, []);
 
   // Simulate real-time stats updates
   useEffect(() => {
@@ -40,9 +34,6 @@ const CollegeERPPublicLanding = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
-  };
 
   const handleInputChange = (e) => {
     setFormData({
@@ -146,7 +137,7 @@ const CollegeERPPublicLanding = () => {
   ];
 
   return (
-    <div className={darkMode ? 'dark' : ''}>
+    <div>
       <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 dark:from-gray-900 dark:via-purple-900 dark:to-gray-800">
         
         {/* Animated Background Elements */}
@@ -180,14 +171,6 @@ const CollegeERPPublicLanding = () => {
                 <a href="#testimonials" className="text-white/90 hover:text-white transition-colors font-medium">Reviews</a>
               </div>
               
-              {/* Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 hover:bg-white/30 transition-all duration-300 flex items-center justify-center text-white hover:scale-110 hover:rotate-12 shadow-lg"
-                title="Toggle theme"
-              >
-                {darkMode ? '☀️' : '🌙'}
-              </button>
               
               {/* Auth Buttons */}
               <button
@@ -639,4 +622,4 @@ const CollegeERPPublicLanding = () => {
   );
 };
 
-export default CollegeERPPublicLanding;
+export default Landing;
