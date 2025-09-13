@@ -1,4 +1,68 @@
 import React, { useState, useEffect } from 'react';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+const enrollmentData = {
+  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+  datasets: [
+    {
+      label: 'Enrollments',
+      data: [350, 450, 400, 300, 420, 380],
+      backgroundColor: '#2563eb', // Indigo 600
+      borderRadius: 5,
+    },
+  ],
+};
+
+const enrollmentOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      labels: {
+        color: '#374151', // Gray-700
+        font: { size: 14 },
+      },
+    },
+    title: {
+      display: true,
+      text: 'Enrollment Trends per Month',
+      color: '#111827', // Gray-900
+      font: { size: 18, weight: 'bold' },
+    },
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false,
+      },
+      ticks: {
+        color: '#374151',
+      },
+      barPercentage: 0.4,
+      categoryPercentage: 0.5,
+    },
+    y: {
+      beginAtZero: true,
+      ticks: {
+        color: '#374151',
+        stepSize: 100,
+      },
+      grid: {
+        color: '#e5e7eb', // Gray-200
+      },
+    },
+  },
+};
 
 const AdminLanding = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,10 +89,12 @@ const AdminLanding = () => {
     booksIssued: 823
   });
 
+
   // Initialize captcha
   useEffect(() => {
     generateCaptcha();
   }, []);
+
 
   // Generate mathematical captcha
   const generateCaptcha = () => {
@@ -64,6 +130,7 @@ const AdminLanding = () => {
     setCaptchaAnswer(answer);
   };
 
+
   const handleLogin = () => {
     if (!adminData.adminId || !adminData.password || !adminData.captcha) {
       alert('Please fill in all fields');
@@ -85,12 +152,14 @@ const AdminLanding = () => {
     }
   };
 
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     setAdminData({ adminId: '', password: '', captcha: '' });
     setCurrentView('dashboard');
     generateCaptcha();
   };
+
 
   const openGoogleSheets = (type) => {
     // Open Google Sheets for different data management
@@ -99,6 +168,7 @@ const AdminLanding = () => {
     alert(`Opening Google Sheets for ${type} management. Please create a new spreadsheet for ${type} data.`);
   };
 
+
   const openGoogleForms = () => {
     // Open Google Forms for admission applications
     const googleFormsUrl = 'https://forms.google.com/';
@@ -106,12 +176,14 @@ const AdminLanding = () => {
     alert('Opening Google Forms to create admission application forms.');
   };
 
+
   const openGoogleDrive = () => {
     // Open Google Drive for document storage
     const googleDriveUrl = 'https://drive.google.com/';
     window.open(googleDriveUrl, '_blank');
     alert('Opening Google Drive for document storage and management.');
   };
+
 
   // Login Page
   if (!isLoggedIn) {
@@ -123,6 +195,7 @@ const AdminLanding = () => {
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute top-1/2 -left-32 w-64 h-64 bg-cyan-300/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
+
 
         {/* Header */}
         <header className="relative z-10 px-4 sm:px-6 lg:px-8 pt-6">
@@ -139,6 +212,7 @@ const AdminLanding = () => {
           </div>
         </header>
 
+
         {/* Login Form */}
         <div className="relative z-10 flex items-center justify-center min-h-[80vh] px-4">
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 w-full max-w-md shadow-2xl border border-white/20">
@@ -149,6 +223,7 @@ const AdminLanding = () => {
               <h2 className="text-3xl font-bold text-white mb-2">Admin Login</h2>
               <p className="text-white/80">Secure access to management portal</p>
             </div>
+
 
             <div className="space-y-6">
               <div>
@@ -164,6 +239,7 @@ const AdminLanding = () => {
                 />
               </div>
 
+
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
                   Password
@@ -176,6 +252,7 @@ const AdminLanding = () => {
                   placeholder="Enter password"
                 />
               </div>
+
 
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-2">
@@ -202,12 +279,14 @@ const AdminLanding = () => {
                 />
               </div>
 
+
               <button
                 onClick={handleLogin}
                 className="w-full py-3 bg-white text-indigo-700 rounded-lg font-bold text-lg shadow-xl hover:shadow-2xl hover:bg-white/90 transition-all duration-300 hover:scale-105"
               >
                 Login to Dashboard
               </button>
+
 
               <div className="text-center text-sm text-white/70">
                 <p>Demo Credentials: admin / admin123</p>
@@ -218,6 +297,7 @@ const AdminLanding = () => {
       </div>
     );
   }
+
 
   // Dashboard View
   return (
@@ -248,6 +328,7 @@ const AdminLanding = () => {
           </div>
         </div>
       </header>
+
 
       <div className="flex">
         {/* Sidebar */}
@@ -316,6 +397,7 @@ const AdminLanding = () => {
           </nav>
         </aside>
 
+
         {/* Main Content */}
         <main className="flex-1 p-6 bg-gray-50">
           
@@ -367,6 +449,7 @@ const AdminLanding = () => {
                 </div>
               </div>
 
+
               {/* Quick Actions */}
               <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
@@ -403,6 +486,7 @@ const AdminLanding = () => {
               </div>
             </div>
           )}
+
 
           {/* Admission Management */}
           {currentView === 'admissions' && (
@@ -448,6 +532,7 @@ const AdminLanding = () => {
             </div>
           )}
 
+
           {/* Fee Management */}
           {currentView === 'fees' && (
             <div>
@@ -491,6 +576,7 @@ const AdminLanding = () => {
               </div>
             </div>
           )}
+
 
           {/* Hostel Management */}
           {currentView === 'hostel' && (
@@ -536,6 +622,7 @@ const AdminLanding = () => {
             </div>
           )}
 
+
           {/* Library Management */}
           {currentView === 'library' && (
             <div>
@@ -580,6 +667,7 @@ const AdminLanding = () => {
             </div>
           )}
 
+
           {/* Analytics Dashboard */}
           {currentView === 'analytics' && (
             <div>
@@ -594,11 +682,11 @@ const AdminLanding = () => {
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* Enrollment Trends with Bar Chart */}
                 <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Enrollment Trends</h3>
                   <div className="text-center py-8">
-                    <div className="text-4xl mb-2">📈</div>
-                    <p className="text-gray-600">Interactive charts and graphs will be displayed here using Google Sheets integration</p>
+                    <Bar data={enrollmentData} options={enrollmentOptions} />
                   </div>
                 </div>
 
@@ -610,6 +698,7 @@ const AdminLanding = () => {
                   </div>
                 </div>
               </div>
+
 
               <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8 text-center">
                 <div className="text-6xl mb-4">📊</div>
