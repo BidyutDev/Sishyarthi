@@ -1,0 +1,16 @@
+{
+  "name": "sishyarthi",
+  "version": "1.0.0",
+  "description": "Smart India Hackathon",
+  "license": "ISC",
+  "author": "Anirban Nath",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev" : "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
