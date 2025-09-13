@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+
 
 const Landing = () => {
   const [showAuth, setShowAuth] = useState(false);
@@ -18,6 +20,22 @@ const Landing = () => {
     hostelOccupancy: 342,
     newAdmissions: 156
   });
+  
+  // Added states and ref for notifications
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationsRef = useRef(null);
+
+
+
+  const notifications = [
+    'New admission request from Alice.',
+    'Hostel occupancy reached 90%.',
+    'Monthly fee collection at 89%.',
+    'System maintenance scheduled for 12 AM.',
+    'Work In Progress',
+    'Wait'
+  ];
+
 
 
   // Simulate real-time stats updates
@@ -31,8 +49,41 @@ const Landing = () => {
       }));
     }, 4000);
 
+
+
     return () => clearInterval(interval);
   }, []);
+
+
+
+  // Close notifications popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target) &&
+        event.target.id !== 'notification-icon'
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotifications]);
+
+
 
 
   const handleInputChange = (e) => {
@@ -41,6 +92,9 @@ const Landing = () => {
       [e.target.name]: e.target.value
     });
   };
+
+
+
 
   const handleOtpChange = (index, value) => {
     if (value.length <= 1 && /^[0-9]*$/.test(value)) {
@@ -56,6 +110,9 @@ const Landing = () => {
     }
   };
 
+
+
+
   const handleLogin = () => {
     if (!formData.email || !formData.password) {
       alert('Please fill in all fields');
@@ -65,6 +122,9 @@ const Landing = () => {
     setShowAuth(false);
   };
 
+
+
+
   const handleRegister = () => {
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.password) {
       alert('Please fill in all required fields');
@@ -72,6 +132,9 @@ const Landing = () => {
     }
     setAuthMode('otp');
   };
+
+
+
 
   const handleOtpVerification = () => {
     const otpValue = otp.join('');
@@ -87,6 +150,9 @@ const Landing = () => {
       alert('Please enter the complete 6-digit OTP');
     }
   };
+
+
+
 
   const features = [
     {
@@ -115,6 +181,9 @@ const Landing = () => {
     }
   ];
 
+
+
+
   const testimonials = [
     {
       name: 'Dr. Sarah Johnson',
@@ -136,6 +205,9 @@ const Landing = () => {
     }
   ];
 
+
+
+
   return (
     <div>
       <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 dark:from-gray-900 dark:via-purple-900 dark:to-gray-800">
@@ -146,6 +218,9 @@ const Landing = () => {
           <div className="absolute top-1/2 -left-32 w-64 h-64 bg-cyan-300/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-pink-300/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
+
+
+
 
         {/* Header */}
         <header className="relative z-10 px-4 sm:px-6 lg:px-8 pt-6">
@@ -162,8 +237,15 @@ const Landing = () => {
               </div>
             </div>
 
+
+
+
             {/* Navigation & Auth */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-6 relative">
+
+
+
+
               {/* Navigation Links */}
               <div className="hidden md:flex items-center space-x-6">
                 <a href="#features" className="text-white/90 hover:text-white transition-colors font-medium">Features</a>
@@ -171,7 +253,79 @@ const Landing = () => {
                 <a href="#testimonials" className="text-white/90 hover:text-white transition-colors font-medium">Reviews</a>
               </div>
               
-              
+              {/* Notification Icon */}
+              <button
+                id="notification-icon"
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 text-white/90 hover:text-white hover:bg-white/20 rounded-lg border border-white/30 backdrop-blur-md transition-all duration-300"
+                aria-label="Show Notifications"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-5-5.917V5a2 2 0 10-4 0v.083A6.002 6.002 0 004 11v3.159c0 .538-.214 1.055-.595 1.436L2 17h5m5 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-600"></span>
+              </button>
+
+
+
+
+              {/* Notifications Popup with transparent modern look and dark scrollbar */}
+              {showNotifications && (
+                <div
+                  ref={notificationsRef}
+                  className="absolute right-16 top-14 w-80 h-96 max-h-80 overflow-auto bg-white/10 backdrop-blur-2xl rounded-xl border border-white/20 shadow-lg z-50 p-4 text-gray-100"
+                  style={{ 
+                    boxShadow: '0 8px 48px 0 rgba(31, 38, 135, 0.25)', 
+                    scrollbarWidth: 'thin', 
+                    scrollbarColor: 'rgba(156,163,175,0.4) transparent' 
+                  }}
+                >
+                  <style>{`
+                    /* Webkit scrollbar */
+                    div::-webkit-scrollbar {
+                      width: 8px;
+                    }
+                    div::-webkit-scrollbar-track {
+                      background: transparent;
+                    }
+                    div::-webkit-scrollbar-thumb {
+                      background-color: rgba(156,163,175,0.4);
+                      border-radius: 10px;
+                      border: 2px solid transparent;
+                      background-clip: content-box;
+                    }
+                    div::-webkit-scrollbar-thumb:hover {
+                      background-color: rgba(156,163,175,0.6);
+                    }
+                  `}</style>
+                  <h3 className="font-semibold text-lg mb-3">Live Notifications</h3>
+                  <ul className="space-y-2">
+                    {notifications.length === 0 ? (
+                      <li className="text-gray-400 text-sm italic">No new notifications</li>
+                    ) : (
+                      notifications.map((note, idx) => (
+                        <li
+                          key={idx}
+                          className="bg-white/20 rounded-md p-2 shadow-sm backdrop-blur-lg text-gray-100"
+                        >
+                          {note}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+              )}
+
+
+
+
               {/* Auth Buttons */}
               <button
                 onClick={() => {
@@ -196,8 +350,12 @@ const Landing = () => {
           </nav>
         </header>
 
+
+
+
+
         {/* Hero Section */}
-        <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <section className="relative z-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="text-center">
             <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-8 leading-tight">
               Transform Your
@@ -228,6 +386,10 @@ const Landing = () => {
             </div>
           </div>
         </section>
+
+
+
+
 
         {/* Stats Section */}
         <section id="stats" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
@@ -279,6 +441,10 @@ const Landing = () => {
           </div>
         </section>
 
+
+
+
+
         {/* Features Section */}
         <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
           <div className="text-center mb-16">
@@ -317,6 +483,10 @@ const Landing = () => {
           </div>
         </section>
 
+
+
+
+
         {/* Testimonials Section */}
         <section id="testimonials" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
           <div className="text-center mb-16">
@@ -343,6 +513,10 @@ const Landing = () => {
           </div>
         </section>
 
+
+
+
+
         {/* CTA Section */}
         <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-12 text-center border border-white/20 shadow-2xl">
@@ -362,6 +536,10 @@ const Landing = () => {
           </div>
         </section>
 
+
+
+
+
         {/* Auth Modal */}
         {showAuth && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -374,6 +552,10 @@ const Landing = () => {
               >
                 ✕
               </button>
+
+
+
+
 
               {/* Login Form */}
               {authMode === 'login' && (
@@ -411,6 +593,8 @@ const Landing = () => {
                       />
                     </div>
 
+
+
                     <div className="flex items-center justify-between text-sm">
                       <label className="flex items-center">
                         <input type="checkbox" className="mr-2" />
@@ -438,6 +622,8 @@ const Landing = () => {
                   </div>
                 </div>
               )}
+
+
 
               {/* Register Form */}
               {authMode === 'register' && (
@@ -533,6 +719,9 @@ const Landing = () => {
                       />
                     </div>
 
+
+
+
                     <div className="flex items-start">
                       <input type="checkbox" className="mt-1 mr-2" />
                       <span className="text-xs text-gray-600 dark:text-gray-400">
@@ -559,6 +748,10 @@ const Landing = () => {
                   </div>
                 </div>
               )}
+
+
+
+
 
               {/* OTP Verification */}
               {authMode === 'otp' && (
@@ -609,6 +802,10 @@ const Landing = () => {
           </div>
         )}
 
+
+
+
+
         {/* Footer */}
         <footer className="relative z-10 bg-white/5 backdrop-blur-md border-t border-white/10 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -621,5 +818,9 @@ const Landing = () => {
     </div>
   );
 };
+
+
+
+
 
 export default Landing;
