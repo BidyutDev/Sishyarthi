@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const studentSchema = new mongoose.Schema({
+  password: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   personalDetails: {
     firstName: {
       type: String,
@@ -26,6 +31,14 @@ const studentSchema = new mongoose.Schema({
       type: Date,
       required: true,
     },
+    email : {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: [/.+\@.+\..+/, "Please fill a valid email address"]
+    },
     gender: {
       type: String,
       enum: ["male", "female", "other"],
@@ -38,36 +51,40 @@ const studentSchema = new mongoose.Schema({
     },
   },
   familyDetails: {
-    fatherName: { 
-      type: String, 
-      trim: true, 
-      required: true 
+    fatherName: {
+      type: String,
+      trim: true,
+      required: true,
     },
-    motherName: { 
-      type: String, 
-      trim: true, 
-      required: true 
+    motherName: {
+      type: String,
+      trim: true,
+      required: true,
     },
-    fatherOccupation: { 
-      type: String, 
-      trim: true 
+    fatherOccupation: {
+      type: String,
+      trim: true,
     },
-    motherOccupation: { 
-      type: String, 
-      trim: true 
+    motherOccupation: {
+      type: String,
+      trim: true,
     },
     siblings: {
       type: Number,
       required: true,
       min: 0,
     },
-    familyIncome : {
-        type : Number,
-        required : true,
-    }
-  }
+    familyIncome: {
+      type: Number,
+      required: true,
+    },
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const Student = mongoose.model('Student', studentSchema);
+const Student = mongoose.model("Student", studentSchema);
 
 export default Student;
