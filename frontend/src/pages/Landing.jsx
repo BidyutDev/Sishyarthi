@@ -1,6 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import sishyarthi from "../assets/Sishyarthi.svg";
 
+const NAV_LINKS = [
+  { id: "merit-list", label: "Merit List" },
+  { id: "notice", label: "Notice" },
+  { id: "programme-info", label: "Programme Information" },
+  { id: "faq", label: "FAQ" },
+  { id: "stats", label: "Statistics" },
+  { id: "testimonials", label: "Reviews" }
+];
+
 const Landing = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState("login"); // 'login', 'register', 'otp'
@@ -20,7 +29,6 @@ const Landing = () => {
     newAdmissions: 156,
   });
 
-  // Added states and ref for notifications
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef(null);
 
@@ -206,6 +214,15 @@ const Landing = () => {
     },
   ];
 
+  // --- Smooth Scroll Handler ---
+  const handleNavScroll = (e, id) => {
+    e.preventDefault();
+    const section = document.getElementById(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div>
       <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 dark:from-gray-900 dark:via-purple-900 dark:to-gray-800">
@@ -236,44 +253,18 @@ const Landing = () => {
 
             {/* Navigation & Auth */}
             <div className="flex items-center space-x-6 relative">
-              {/* Navigation Links */}
+              {/* Navigation Links with Smooth Scroll */}
               <div className="hidden md:flex items-center space-x-6">
-                <a
-                  href="#merit-list"
-                  className="text-white/90 hover:text-white transition-colors font-medium"
-                >
-                  Merit List
-                </a>
-                <a
-                  href="#notice"
-                  className="text-white/90 hover:text-white transition-colors font-medium"
-                >
-                  Notice
-                </a>
-                <a
-                  href="#programme-info"
-                  className="text-white/90 hover:text-white transition-colors font-medium"
-                >
-                  Programme Information
-                </a>
-                <a
-                  href="#faq"
-                  className="text-white/90 hover:text-white transition-colors font-medium"
-                >
-                  FAQ
-                </a>
-                <a
-                  href="#stats"
-                  className="text-white/90 hover:text-white transition-colors font-medium"
-                >
-                  Statistics
-                </a>
-                <a
-                  href="#testimonials"
-                  className="text-white/90 hover:text-white transition-colors font-medium"
-                >
-                  Reviews
-                </a>
+                {NAV_LINKS.map(link => (
+                  <a
+                    key={link.id}
+                    href={`#${link.id}`}
+                    className="text-white/90 hover:text-white transition-colors font-medium"
+                    onClick={e => handleNavScroll(e, link.id)}
+                  >
+                    {link.label}
+                  </a>
+                ))}
               </div>
 
               {/* Notification Icon */}
@@ -376,7 +367,7 @@ const Landing = () => {
         </header>
 
         {/* Hero Section */}
-        <section className="relative z-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <section className="relative h-screen z-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 flex flex-col justify-center">
           <div className="text-center">
             <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-8 leading-tight">
               Transform Your
@@ -414,7 +405,7 @@ const Landing = () => {
         {/* Stats Section */}
         <section
           id="stats"
-          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20"
+          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 pt-10"
         >
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-white mb-4">
