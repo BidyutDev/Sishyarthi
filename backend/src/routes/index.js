@@ -1,5 +1,5 @@
-import {Router} from "express"
-import adminRouter from "./adminRouter"
+import { Router } from "express"
+import adminRouter from "./adminRouter.js"
 
 const router = Router()
 
