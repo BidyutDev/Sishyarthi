@@ -10,9 +10,31 @@ const NAV_LINKS = [
   { id: "testimonials", label: "Reviews" }
 ];
 
+const statTargets = {
+  students: 10000,
+  faculty: 600,
+  staff: 700,
+};
+
+const statDurations = {
+  students: 1000, // ms
+  faculty: 900,
+  staff: 800,
+};
+
+const ANNOUNCEMENTS = [
+  "EXPRESSION OF INTEREST for 'Development of Indigenous Technology for Armour Grade Ceramic Materials for Body Armour Applications' With Industry",
+  "Call for Applications: Transformative Leadership in STEMM (TLS) Workshop for Advanced PhD Scholars from SC/ST community.",
+  "Joint PhD: Univ. of Queensland & IIT Delhi",
+  "Convocation Pictures 2025",
+  "Department of Management Studies launches 2 Year Executive MBA Program.",
+  "Rules, Charges and Form for Visiting Students (UG)",
+  "Hostel related information"
+];
+
 const Landing = () => {
   const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState("login"); // 'login', 'register', 'otp'
+  const [authMode, setAuthMode] = useState("login");
   const [formData, setFormData] = useState({
     firstName: "",
     middleName: "",
@@ -22,13 +44,21 @@ const Landing = () => {
     password: "",
   });
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [stats, setStats] = useState({
-    totalStudents: 1247,
-    feeCollectionRate: 89,
-    hostelOccupancy: 342,
-    newAdmissions: 156,
+
+  // Animated display for stats
+  const [displayStats, setDisplayStats] = useState({
+    students: 0,
+    faculty: 0,
+    staff: 0,
   });
 
+  // New state to control animation trigger
+  const [statsAnimationStarted, setStatsAnimationStarted] = useState(false);
+
+  // Ref to stats section element
+  const statsSectionRef = useRef(null);
+
+  // ShowNotifications and ref
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef(null);
 
@@ -41,36 +71,59 @@ const Landing = () => {
     "Wait",
   ];
 
-  // Simulate real-time stats updates
+  // Scroll event handler to detect stats section entering viewport to start animation
   useEffect(() => {
-    const interval = setInterval(() => {
-      setStats((prev) => ({
-        totalStudents: Math.max(
-          0,
-          prev.totalStudents + Math.floor(Math.random() * 3) - 1
-        ),
-        feeCollectionRate: Math.max(
-          0,
-          Math.min(
-            100,
-            prev.feeCollectionRate + Math.floor(Math.random() * 3) - 1
-          )
-        ),
-        hostelOccupancy: Math.max(
-          0,
-          prev.hostelOccupancy + Math.floor(Math.random() * 3) - 1
-        ),
-        newAdmissions: Math.max(
-          0,
-          prev.newAdmissions + Math.floor(Math.random() * 3) - 1
-        ),
-      }));
-    }, 4000);
+    const handleScroll = () => {
+      if (statsAnimationStarted) return; // already started
+      
+      const statsSection = statsSectionRef.current;
+      if (!statsSection) return;
+      const rect = statsSection.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      if (rect.top <= windowHeight && rect.bottom >= 0) {
+        setStatsAnimationStarted(true);
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
 
-  // Close notifications popup when clicking outside
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [statsAnimationStarted]);
+
+  // Animate stats only when triggered
+  useEffect(() => {
+    if (!statsAnimationStarted) return;
+
+    let rafId;
+    const start = performance.now();
+    function animate(now) {
+      const elapsed = now - start;
+      setDisplayStats(prev => {
+        const next = { ...prev };
+        for (const key of Object.keys(statTargets)) {
+          const duration = statDurations[key];
+          if (elapsed < duration) {
+            next[key] = Math.floor(statTargets[key] * (elapsed / duration));
+          } else {
+            next[key] = statTargets[key];
+          }
+        }
+        return next;
+      });
+      if (
+        elapsed < statDurations.students ||
+        elapsed < statDurations.faculty ||
+        elapsed < statDurations.staff
+      ) {
+        rafId = requestAnimationFrame(animate);
+      }
+    }
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, [statsAnimationStarted]);
+
+  // Notification logic unchanged...
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -87,7 +140,6 @@ const Landing = () => {
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -105,8 +157,6 @@ const Landing = () => {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
-
-      // Auto-focus next input
       if (value && index < 5) {
         const nextInput = document.getElementById(`otp-${index + 1}`);
         if (nextInput) nextInput.focus();
@@ -154,41 +204,12 @@ const Landing = () => {
         password: "",
       });
       setOtp(["", "", "", "", "", ""]);
+      setAgreeTerms(false);
+      generateCaptcha();
     } else {
       alert("Please enter the complete 6-digit OTP");
     }
   };
-
-  const features = [
-    {
-      icon: "🎓",
-      title: "Smart Admissions",
-      description:
-        "Automated application processing with document verification and real-time tracking.",
-      gradient: "from-blue-500 to-indigo-600",
-    },
-    {
-      icon: "💰",
-      title: "Digital Payments",
-      description:
-        "Secure fee collection with instant receipts and automated payment reminders.",
-      gradient: "from-green-500 to-emerald-600",
-    },
-    {
-      icon: "🏠",
-      title: "Facility Management",
-      description:
-        "Complete hostel and facility booking with real-time availability tracking.",
-      gradient: "from-purple-500 to-pink-600",
-    },
-    {
-      icon: "📊",
-      title: "Analytics & Reports",
-      description:
-        "Comprehensive insights with real-time data visualization and automated reporting.",
-      gradient: "from-orange-500 to-red-600",
-    },
-  ];
 
   const testimonials = [
     {
@@ -214,12 +235,15 @@ const Landing = () => {
     },
   ];
 
-  // --- Smooth Scroll Handler ---
+  // Modified handleNavScroll to also trigger stats animation if stats section clicked
   const handleNavScroll = (e, id) => {
     e.preventDefault();
     const section = document.getElementById(id);
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
+      if (id === "stats" && !statsAnimationStarted) {
+        setStatsAnimationStarted(true);
+      }
     }
   };
 
@@ -239,11 +263,7 @@ const Landing = () => {
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <div className="w-15 h-15 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white font-bold text-xl shadow-2xl border border-white/30">
-                <img
-                  className="size-fit rounded-full"
-                  src={sishyarthi}
-                  alt=""
-                />
+                <img className="size-fit rounded-full" src={sishyarthi} alt="" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">Sishyarthi</h1>
@@ -253,7 +273,6 @@ const Landing = () => {
 
             {/* Navigation & Auth */}
             <div className="flex items-center space-x-6 relative">
-              {/* Navigation Links with Smooth Scroll */}
               <div className="hidden md:flex items-center space-x-6">
                 {NAV_LINKS.map(link => (
                   <a
@@ -291,7 +310,7 @@ const Landing = () => {
                 <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-600"></span>
               </button>
 
-              {/* Notifications Popup with transparent modern look and dark scrollbar */}
+              {/* Notifications Popup */}
               {showNotifications && (
                 <div
                   ref={notificationsRef}
@@ -303,7 +322,6 @@ const Landing = () => {
                   }}
                 >
                   <style>{`
-                    /* Webkit scrollbar */
                     div::-webkit-scrollbar {
                       width: 8px;
                     }
@@ -320,14 +338,10 @@ const Landing = () => {
                       background-color: rgba(156,163,175,0.6);
                     }
                   `}</style>
-                  <h3 className="font-semibold text-lg mb-3">
-                    Live Notifications
-                  </h3>
+                  <h3 className="font-semibold text-lg mb-3">Live Notifications</h3>
                   <ul className="space-y-2">
                     {notifications.length === 0 ? (
-                      <li className="text-gray-400 text-sm italic">
-                        No new notifications
-                      </li>
+                      <li className="text-gray-400 text-sm italic">No new notifications</li>
                     ) : (
                       notifications.map((note, idx) => (
                         <li
@@ -352,7 +366,6 @@ const Landing = () => {
               >
                 Login
               </button>
-
               <button
                 onClick={() => {
                   setShowAuth(true);
@@ -380,7 +393,6 @@ const Landing = () => {
               admissions, fee management, facility booking, and analytics with
               seamless automation and intelligent insights.
             </p>
-
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-16">
               <button
                 onClick={() => {
@@ -390,9 +402,7 @@ const Landing = () => {
                 className="group px-8 py-4 bg-white text-indigo-600 rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 flex items-center space-x-2"
               >
                 <span>Get Started Free</span>
-                <span className="group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </button>
               <button className="px-8 py-4 border-2 border-white/30 text-white rounded-xl font-semibold bg-white/10 backdrop-blur-md hover:bg-white/20 transition-all duration-300 hover:scale-105 flex items-center space-x-2">
                 <span>▶</span>
@@ -404,130 +414,147 @@ const Landing = () => {
 
         {/* Stats Section */}
         <section
+          ref={statsSectionRef}
           id="stats"
           className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 pt-10"
         >
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              📊 Live Statistics
-            </h2>
-            <p className="text-xl text-white/80">
-              Real-time data from our integrated systems
-            </p>
+            <h2 className="text-4xl font-bold text-white mb-4">📊 Live Statistics</h2>
+            <p className="text-xl text-white/80">Real-time data from our integrated systems</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="group bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-3 hover:bg-white/15">
-              <div className="text-5xl font-bold text-white mb-3 group-hover:scale-110 transition-transform">
-                {stats.totalStudents.toLocaleString()}
+              {/* Students */}
+              <div className="text-5xl font-bold text-yellow-300 mb-1 group-hover:scale-110 transition-transform">
+                {displayStats.students.toLocaleString()}+
               </div>
-              <div className="text-white/80 font-medium text-lg mb-4">
-                Total Students
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-3">
-                <div
-                  className="bg-gradient-to-r from-cyan-400 to-blue-500 h-3 rounded-full animate-pulse"
-                  style={{ width: "85%" }}
-                ></div>
-              </div>
+              <div className="uppercase tracking-wide text-yellow-200 font-semibold text-sm mb-2">STUDENTS</div>
             </div>
-
             <div className="group bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-3 hover:bg-white/15">
-              <div className="text-5xl font-bold text-white mb-3 group-hover:scale-110 transition-transform">
-                {stats.feeCollectionRate}%
+              {/* Faculty */}
+              <div className="text-5xl font-bold text-yellow-300 mb-1 group-hover:scale-110 transition-transform">
+                {displayStats.faculty.toLocaleString()}+
               </div>
-              <div className="text-white/80 font-medium text-lg mb-4">
-                Fee Collection
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-3">
-                <div
-                  className="bg-gradient-to-r from-green-400 to-emerald-500 h-3 rounded-full animate-pulse"
-                  style={{ width: `${stats.feeCollectionRate}%` }}
-                ></div>
-              </div>
+              <div className="uppercase tracking-wide text-yellow-200 font-semibold text-sm mb-2">FACULTY</div>
             </div>
-
             <div className="group bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-3 hover:bg-white/15">
-              <div className="text-5xl font-bold text-white mb-3 group-hover:scale-110 transition-transform">
-                {stats.hostelOccupancy.toLocaleString()}
+              {/* Staff */}
+              <div className="text-5xl font-bold text-yellow-300 mb-1 group-hover:scale-110 transition-transform">
+                {displayStats.staff.toLocaleString()}+
               </div>
-              <div className="text-white/80 font-medium text-lg mb-4">
-                Hostel Occupancy
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-3">
-                <div
-                  className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full animate-pulse"
-                  style={{ width: "70%" }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="group bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-3 hover:bg-white/15">
-              <div className="text-5xl font-bold text-white mb-3 group-hover:scale-110 transition-transform">
-                {stats.newAdmissions.toLocaleString()}
-              </div>
-              <div className="text-white/80 font-medium text-lg mb-4">
-                New Admissions
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-3">
-                <div
-                  className="bg-gradient-to-r from-pink-400 to-purple-500 h-3 rounded-full animate-pulse"
-                  style={{ width: "60%" }}
-                ></div>
-              </div>
+              <div className="uppercase tracking-wide text-yellow-200 font-semibold text-sm mb-2">STAFF</div>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* IMPORTANT ANNOUNCEMENTS Section - REDESIGNED */}
         <section
-          id="features"
-          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20"
+          id="important-announcements"
+          className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12"
         >
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              🚀 Powerful Features
-            </h2>
-            <p className="text-xl text-white/80 max-w-3xl mx-auto">
-              Comprehensive tools designed to streamline every aspect of college
-              management
-            </p>
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center space-x-3 mb-3">
+              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>
+              <h2 className="text-3xl font-bold text-white">
+                IMPORTANT ANNOUNCEMENTS
+              </h2>
+              <div className="w-2 h-2 bg-white/60 rounded-full animate-pulse delay-500"></div>
+            </div>
+            <p className="text-lg text-white/80">Stay updated with real-time notifications</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="group bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-3 hover:bg-white/15 relative overflow-hidden"
-              >
-                <div
-                  className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.gradient}`}
-                ></div>
-
-                <div className="flex items-center space-x-4 mb-6">
-                  <div
-                    className={`text-5xl group-hover:scale-110 transition-transform`}
-                  >
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-2xl font-bold text-white">
-                    {feature.title}
-                  </h3>
+          
+          <div className="bg-white/8 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl max-w-4xl mx-auto overflow-hidden">
+            {/* Header with live indicator */}
+            <div className="bg-white/10 px-6 py-3 border-b border-white/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-white/90 text-sm font-medium">Live Updates</span>
                 </div>
-
-                <p className="text-white/80 text-lg leading-relaxed">
-                  {feature.description}
-                </p>
-
-                <div className="mt-6">
-                  <button
-                    className={`px-6 py-3 bg-gradient-to-r ${feature.gradient} text-white rounded-lg font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105`}
-                  >
-                    Learn More →
-                  </button>
-                </div>
+                <span className="text-white/60 text-xs">Last updated: just now</span>
               </div>
-            ))}
+            </div>
+            
+            {/* Scrollable announcements */}
+            <div 
+              className="h-80 overflow-y-auto p-4"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "rgba(255,255,255,0.3) transparent",
+              }}
+            >
+              <style>{`
+                .announcements-container::-webkit-scrollbar {
+                  width: 6px;
+                }
+                .announcements-container::-webkit-scrollbar-track {
+                  background: rgba(255,255,255,0.1);
+                  border-radius: 3px;
+                }
+                .announcements-container::-webkit-scrollbar-thumb {
+                  background-color: rgba(255,255,255,0.3);
+                  border-radius: 3px;
+                }
+                .announcements-container::-webkit-scrollbar-thumb:hover {
+                  background-color: rgba(255,255,255,0.5);
+                }
+              `}</style>
+              <div className="announcements-container space-y-3">
+                {ANNOUNCEMENTS.map((announcement, idx) => (
+                  <div
+                    key={idx}
+                    className="group bg-white/10 backdrop-blur-md rounded-lg p-4 border border-white/15 shadow-md hover:shadow-lg hover:border-white/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 mt-1">
+                        {announcement.isNew ? (
+                          <div className="w-4 h-4 bg-green-400 rounded-full flex items-center justify-center animate-pulse">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 bg-white/40 rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <p className="text-white font-medium text-base leading-relaxed group-hover:text-white/95 transition-colors pr-2">
+                            {announcement.text}
+                          </p>
+                          <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-white/60 text-xs">{announcement.time}</span>
+                          {announcement.isNew && (
+                            <span className="px-2 py-0.5 bg-green-400/20 text-green-300 text-xs rounded-full font-medium">
+                              NEW
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Footer with button */}
+            <div className="bg-white/5 px-6 py-4 border-t border-white/20">
+              <div className="text-center">
+                <button className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center space-x-2 mx-auto text-sm">
+                  <span>View All Announcements</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -537,14 +564,11 @@ const Landing = () => {
           className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20"
         >
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-6">
-              💬 What People Say
-            </h2>
+            <h2 className="text-4xl font-bold text-white mb-6">💬 What People Say</h2>
             <p className="text-xl text-white/80">
               Trusted by educational institutions worldwide
             </p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
               <div
@@ -845,7 +869,6 @@ const Landing = () => {
             </div>
           </div>
         )}
-
         {/* Footer */}
         <footer className="relative z-10 bg-white/5 backdrop-blur-md border-t border-white/10 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
